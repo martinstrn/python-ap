@@ -3,17 +3,21 @@ import pygame
 pygame.init()
 width=400
 height=300
-
+FREQUENCY=20
 
 screen = pygame.display.set_mode( (640, 480) )
 
 clock = pygame.time.Clock()
 
-while True:
+running=True
+while running:
 
     clock.tick(1)
 
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                running=False
         pass
 
     screen.fill( (255, 255, 255) )
