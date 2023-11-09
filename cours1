@@ -1,15 +1,19 @@
 import pygame 
+import copy
+
 
 pygame.init()
 WIDTH=400
 HEIGHT=300
-FREQUENCY=20
+FREQUENCY=5
 
 SQUARE=20
 WHITE=(255,255,255)
 BLACK=(0,0,0)
+GREEN=(0,255,0)
 
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
+screen.fill( (255, 255, 255) )
 
 clock = pygame.time.Clock()
 
@@ -22,27 +26,53 @@ for j in range(int(HEIGHT/SQUARE)):
             pygame.draw.rect(screen, WHITE, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
 
 
-snake=[[11,6],[11,7],[11,8]]
-
 running=True
 
+snake=[(10,5),(10,6),(10,7)]
+dir=(0,-1)
+def drawsnake(snake):
+    for pix in snake:
+        pygame.draw.rect(screen, GREEN, pygame.Rect(SQUARE*pix[1], SQUARE*pix[0], SQUARE, SQUARE))
+    return 
+
+drawsnake(snake)
+
+def avancer2(direction,snake):
+    snake.pop()
+    new=(snake[0][0]+direction[0],snake[0][1]+direction[1])
+    snake.insert(0,new)
+    print(snake,"avancer",new)
+
+print(avancer2(dir,snake),"test")
 
 while running:
+    clock.tick(FREQUENCY)
+    for j in range(int(HEIGHT/SQUARE)):
+        for i in range(int(WIDTH/SQUARE)):
+            if (i+j)%2==0:
+                pygame.draw.rect(screen, BLACK, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
+            else:
+                pygame.draw.rect(screen, WHITE, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
 
-    clock.tick(1)
 
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key ==pygame.K_UP:
+                dir=[-1,0]
+            if event.key ==pygame.K_DOWN:
+                dir=[1,0]
+            if event.key ==pygame.K_RIGHT:
+                dir=[0,1]
+            if event.key ==pygame.K_LEFT:
+                dir=[0,-1]
+    
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 running=False
             if event.type ==pygame.QUIT:
                 running=False
-
-
-        pass
-
-    #screen.fill( (255, 255, 255) )
-
+    avancer2(dir,snake)
+    drawsnake(snake)
     pygame.display.update()
 
 pygame.quit
