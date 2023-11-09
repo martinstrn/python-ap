@@ -1,15 +1,32 @@
 import pygame 
 
 pygame.init()
-width=400
-height=300
+WIDTH=400
+HEIGHT=300
 FREQUENCY=20
 
-screen = pygame.display.set_mode( (640, 480) )
+SQUARE=20
+WHITE=(255,255,255)
+BLACK=(0,0,0)
+
+screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
 
 clock = pygame.time.Clock()
 
+
+for j in range(int(HEIGHT/SQUARE)):
+    for i in range(int(WIDTH/SQUARE)):
+        if (i+j)%2==0:
+            pygame.draw.rect(screen, BLACK, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
+        else:
+            pygame.draw.rect(screen, WHITE, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
+
+
+snake=[[11,6],[11,7],[11,8]]
+
 running=True
+
+
 while running:
 
     clock.tick(1)
@@ -18,10 +35,15 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 running=False
+            if event.type ==pygame.QUIT:
+                running=False
+
+
         pass
 
-    screen.fill( (255, 255, 255) )
+    #screen.fill( (255, 255, 255) )
 
     pygame.display.update()
 
-test=True
+pygame.quit
+quit(0)
