@@ -5,11 +5,12 @@ import copy
 pygame.init()
 WIDTH=400
 HEIGHT=300
-FREQUENCY=5
+FREQUENCY=20
 
 SQUARE=20
 WHITE=(255,255,255)
 BLACK=(0,0,0)
+RED=(255,0,0)
 GREEN=(0,255,0)
 
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
@@ -30,10 +31,18 @@ running=True
 
 snake=[(10,5),(10,6),(10,7)]
 dir=(0,-1)
+fruit1=(3,3)
+fruit2=(10,15)
+compteur=0
+fruit=fruit1
+
 def drawsnake(snake):
     for pix in snake:
         pygame.draw.rect(screen, GREEN, pygame.Rect(SQUARE*pix[1], SQUARE*pix[0], SQUARE, SQUARE))
     return 
+
+def drawfruit(fruit):
+    pygame.draw.rect(screen, RED, pygame.Rect(SQUARE*fruit[1], SQUARE*fruit[0], SQUARE, SQUARE))
 
 drawsnake(snake)
 
@@ -41,9 +50,6 @@ def avancer2(direction,snake):
     snake.pop()
     new=(snake[0][0]+direction[0],snake[0][1]+direction[1])
     snake.insert(0,new)
-    print(snake,"avancer",new)
-
-print(avancer2(dir,snake),"test")
 
 while running:
     clock.tick(FREQUENCY)
@@ -53,7 +59,14 @@ while running:
                 pygame.draw.rect(screen, BLACK, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
             else:
                 pygame.draw.rect(screen, WHITE, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
-
+    if snake[0]==fruit:
+        snake.append((snake[-1][0]-dir[0],snake[-1][1]-dir[1]))
+        compteur+=1
+        if fruit==fruit1:
+            fruit=fruit2
+        else:
+            fruit=fruit1
+        print(fruit)
 
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -71,8 +84,11 @@ while running:
                 running=False
             if event.type ==pygame.QUIT:
                 running=False
+    
     avancer2(dir,snake)
     drawsnake(snake)
+    drawfruit(fruit)
+    pygame.display.set_caption("Score : " + str(compteur))
     pygame.display.update()
 
 pygame.quit
