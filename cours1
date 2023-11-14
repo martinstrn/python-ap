@@ -1,64 +1,95 @@
 import pygame 
 import copy
+import argparse
 
 
 pygame.init()
+
+#CONSTANTES
+
 WIDTH=400
 HEIGHT=300
-FREQUENCY=20
-
+FREQUENCY=10
 SQUARE=20
 WHITE=(255,255,255)
 BLACK=(0,0,0)
 RED=(255,0,0)
 GREEN=(0,255,0)
 
-screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
-screen.fill( (255, 255, 255) )
+#Ajouter des arguments
 
-clock = pygame.time.Clock()
-
-
-for j in range(int(HEIGHT/SQUARE)):
-    for i in range(int(WIDTH/SQUARE)):
-        if (i+j)%2==0:
-            pygame.draw.rect(screen, BLACK, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
-        else:
-            pygame.draw.rect(screen, WHITE, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
+parser = argparse.ArgumentParser(description='Some description.')
+parser.add_argument('--bg-color-1',default=WHITE,type=str, help="prend un str. ajouter une première couleur du fond")
 
 
-running=True
 
+parser.add_argument('--bg-color-2',default=BLACK,type=str,help="ajouter une deuxième couleur de fond")
+
+parser.add_argument('--height',default=HEIGHT,type=int,help="hauteur de la fenêtre")
+parser.add_argument('--width',default=WIDTH,type=int,help="largeur de la fenêtre")
+parser.add_argument('--tile-size',default=SQUARE,type=int,help="taille d'un carreau")
+
+parser.add_argument('--fps',type=int,default=FREQUENCY,help="donner les fps du jeu")
+"""
+parser.add_argument('--fruit-color',type=str,help="couleur du fruit")
+parser.add_argument('--snake-color',type=str,help="couleur du serpent")
+parser.add_argument('--snake-lenght',type=int,help="donner la couleur initial du serpent")
+
+"""
+
+args = parser.parse_args()
+
+
+
+
+
+#INITIALISATION DES VARIABLES MODIFIABLES
 snake=[(10,5),(10,6),(10,7)]
 dir=(0,-1)
 fruit1=(3,3)
 fruit2=(10,15)
 compteur=0
 fruit=fruit1
+running=True
+
+#BLANK SCREEN
+screen = pygame.display.set_mode( (args.width, args.height) )
+screen.fill( (255, 255, 255) )
+clock = pygame.time.Clock()
+
+
+
+
+# FONCTION POUR DESSINER UN SNAKE ET UN FRUIT
 
 def drawsnake(snake):
     for pix in snake:
-        pygame.draw.rect(screen, GREEN, pygame.Rect(SQUARE*pix[1], SQUARE*pix[0], SQUARE, SQUARE))
+        pygame.draw.rect(screen, GREEN, pygame.Rect(args.tile_size*pix[1], args.tile_size*pix[0], args.tile_size, args.tile_size))
     return 
 
 def drawfruit(fruit):
-    pygame.draw.rect(screen, RED, pygame.Rect(SQUARE*fruit[1], SQUARE*fruit[0], SQUARE, SQUARE))
+    pygame.draw.rect(screen, RED, pygame.Rect(args.tile_size*fruit[1], args.tile_size*fruit[0], args.tile_size, args.tile_size))
 
 drawsnake(snake)
 
+#FONCTION POUR AVANCER LE SERPENT SELON UNE DIRECTION A UN INSTANT
 def avancer2(direction,snake):
     snake.pop()
     new=(snake[0][0]+direction[0],snake[0][1]+direction[1])
     snake.insert(0,new)
 
 while running:
-    clock.tick(FREQUENCY)
-    for j in range(int(HEIGHT/SQUARE)):
-        for i in range(int(WIDTH/SQUARE)):
+
+    #REDESSINER LE DAMIER A CHAQUE ITERATION
+    clock.tick(args.fps)
+    for j in range(int(args.height/args.tile_size)):
+        for i in range(int(args.width/args.tile_size)):
             if (i+j)%2==0:
-                pygame.draw.rect(screen, BLACK, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
+                pygame.draw.rect(screen, args.bg_color_2, pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size))
             else:
-                pygame.draw.rect(screen, WHITE, pygame.Rect(i*SQUARE, j*SQUARE, SQUARE, SQUARE))
+                pygame.draw.rect(screen, args.bg_color_1, pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size))
+
+    #SI LE SERPENT RENCONTRE LE FRUIT, LE COMPTEUR AUGMENTE ET LE SERPENT GAGNE UNE CASE
     if snake[0]==fruit:
         snake.append((snake[-1][0]-dir[0],snake[-1][1]-dir[1]))
         compteur+=1
@@ -66,8 +97,8 @@ while running:
             fruit=fruit2
         else:
             fruit=fruit1
-        print(fruit)
 
+    # Boucle d'évènement : pour les changements de direction ou pour arrêter le jeu
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key ==pygame.K_UP:
@@ -85,9 +116,12 @@ while running:
             if event.type ==pygame.QUIT:
                 running=False
     
+    # On a modifié les variables "dir" , donc on fait évoluer le serpent et on l'affiche
     avancer2(dir,snake)
     drawsnake(snake)
     drawfruit(fruit)
+
+    # Affichage du score à chaque itération
     pygame.display.set_caption("Score : " + str(compteur))
     pygame.display.update()
 
