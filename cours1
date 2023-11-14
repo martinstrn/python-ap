@@ -30,12 +30,16 @@ parser.add_argument('--width',default=WIDTH,type=int,help="largeur de la fenêtr
 parser.add_argument('--tile-size',default=SQUARE,type=int,help="taille d'un carreau")
 
 parser.add_argument('--fps',type=int,default=FREQUENCY,help="donner les fps du jeu")
-"""
-parser.add_argument('--fruit-color',type=str,help="couleur du fruit")
-parser.add_argument('--snake-color',type=str,help="couleur du serpent")
-parser.add_argument('--snake-lenght',type=int,help="donner la couleur initial du serpent")
+
 
 """
+parser.add_argument('--fruit-color',default=RED,type=str,help="couleur du fruit")
+parser.add_argument('--snake-color',default=GREEN,type=str,help="couleur du serpent")
+parser.add_argument('--snake-lenght',default=3,type=int,help="donner la couleur initial du serpent")
+
+"""
+#Ajout du flag pour la sortie du serpent de l'écran
+parser.add_argument('-game-over-on-exit',action='store_true')
 
 args = parser.parse_args()
 
@@ -56,6 +60,7 @@ running=True
 screen = pygame.display.set_mode( (args.width, args.height) )
 screen.fill( (255, 255, 255) )
 clock = pygame.time.Clock()
+
 
 
 
@@ -120,6 +125,27 @@ while running:
     avancer2(dir,snake)
     drawsnake(snake)
     drawfruit(fruit)
+    #On arrete le jeu si la tete du snake est hors de la fenetre
+    if args.game_over_on_exit == True:
+        if snake[0][1]>args.width/args.tile_size:
+            running=False
+        elif snake[0][0]<0:
+            running=False
+        elif snake[0][0]>args.height/args.tile_size:
+            running=False
+        elif snake[0][1]<0:
+            running=False
+    #Si le flag n'est aps déclencher, le serpent "boucle"
+    if args.game_over_on_exit == False:
+        if snake[0][0]>args.height/args.tile_size:
+            snake[0]=(0,snake[0][1])
+        elif snake[0][0]<0:
+            snake[0]=(args.height/args.tile_size,snake[0][1])
+        elif snake[0][1]>args.width/args.tile_size:
+            snake[0]=(snake[0][0],0)
+        elif snake[0][1]<0:
+            snake[0]=(snake[0][0],args.width/args.tile_size)
+    drawsnake(snake)
 
     # Affichage du score à chaque itération
     pygame.display.set_caption("Score : " + str(compteur))
