@@ -20,9 +20,9 @@ BLACK=(0,0,0)
 RED=(255,0,0)
 GREEN=(0,255,0)
 
-MIN_WND_SIZE = 200 # Minimum for window height or width.
-MIN_SNAKE_LEN = 2 # Minimum length of the snake.
-MIN_TILE_SIZE = 10 # Minimum for tile size.
+MIN_WND_SIZE = 200 
+MIN_SNAKE_LEN = 2 
+MIN_TILE_SIZE = 10 
 MIN_NB_ROWS = 12
 MIN_NB_COLS = 20
 
@@ -56,15 +56,14 @@ def read_args():
         raise ValueError(("Number of columns must be greater or equal to %d, " + "but width / tile_size = %d / %d = %d.") % (MIN_NB_COLS,args.width, args.tile_size, args.width // args.tile_size))
     if args.height // args.tile_size < MIN_NB_ROWS:
         raise ValueError(("Number of rows must be greater or equal to %d, " + "but height / tile_size = %d / %d = %d.") % (MIN_NB_ROWS,args.height, args.tile_size, args.height // args.tile_size))
-    return [args.bg_color_1, args.bg_color_2, args.height, args.width, args.tile_size, args.fps, args.fruit_color, args.snake_color, args.snake_length, args.debug, args.game_over_on_exit]
-
+    return args
 
 #afficher le score à partir d'un compteur
 def get_score(compteur1):
     pygame.display.set_caption("Score : " + str(compteur1))
     pygame.display.update()
 
-
+#fonctions pour dessiner les objets un par un
 def draw_snake(screen1,snake_color,tile_size,snake1):
     for pix in snake1:
         pygame.draw.rect(screen1, snake_color, pygame.Rect(tile_size*pix[1], tile_size*pix[0], tile_size, tile_size))
@@ -154,50 +153,47 @@ def process_event(running1,dir):
             running1=False
     return dir,running1
 
+
 #boucle principal qui n'utilise que les constantes et les fonctions définies à l'extérieur
 def main():
-    #read_args doit renvoyer une liste des arguments pour ne pas créer de variables globales à la fonction main
-    #dans la fonction read_args 
-    listearg=read_args()
-    bg_color_1,bg_color_2= listearg[0],listearg[1]
-    height,width=listearg[2],listearg[3]
-    tile_size,fps=listearg[4],listearg[5]
-    fruit_color,snake_color=listearg[6],listearg[7]
-    snake_length,debug=listearg[8],listearg[9]
-    game_over_on_exit=listearg[10]
+    #on lit les arguments puis on initialise le journal logger
+    args=read_args()
 
     clock = pygame.time.Clock()
     logger = logging.getLogger(__name__)
     handler = logging.StreamHandler(sys.stderr)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
-    if debug:
+    if args.debug:
         logger.setLevel(logging.DEBUG)
 
     #initialisation des variables
     snake=[(10,5)]
+    
+    for i in range(args.snake_length):
+        snake.append((10,5+i))
     dir=(0,-1)
     fruit=(3,3)
     compteur=0
     running=True
-    for i in range(snake_length):
-        snake.append((10,5+i))
+
 
     #initialiser l'écran
-    screen = pygame.display.set_mode((width,height))
+    screen = pygame.display.set_mode((args.width,args.height))
     clock = pygame.time.Clock()
+
+    
     while running:
-        clock.tick(fps)
+        clock.tick(args.fps)
         dir,running=process_event(running,dir)
-        snake,running=move_snake(dir,snake,game_over_on_exit,tile_size,width,height,running)
-        fruit,compteur=update_fruit(fruit,compteur,snake,dir,logger,width,height,tile_size)
+        snake,running=move_snake(dir,snake,args.game_over_on_exit,args.tile_size,args.width,args.height,running)
+        fruit,compteur=update_fruit(fruit,compteur,snake,dir,logger,args.width,args.height,args.tile_size)
         get_score(compteur)
-        draw_all(screen,snake,snake_color,fruit,fruit_color,height,width,tile_size,bg_color_1,bg_color_2)
+        draw_all(screen,snake,args.snake_color,fruit,args.fruit_color,args.height,args.width,args.tile_size,args.bg_color_1,args.bg_color_2)
         pygame.display.update()
 
     logger.info("Game Over")
     return
-
 main()
 pygame.quit
 quit(0)
