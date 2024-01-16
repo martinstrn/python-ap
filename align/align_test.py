@@ -6,5 +6,5 @@ def test_needleman():
     #exemple simple
     assert align.needleman("ATA",'AA')[1:]==['ATA', 'A-A']
 
-    #exemple de la page wikipedia
+    #exemple de wikipedia
     assert align.needleman("GCAGCG","GATTACA")[1:]==['GCA--GCG', 'G-ATTACA']
